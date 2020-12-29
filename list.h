@@ -150,7 +150,7 @@
   };\
 \
   List *List##_cons(List *list, size_t cap) {\
-    list->elems = IF(Allocator_alloc)(Allocator_alloc(cap * sizeof(Elem)), malloc(cap * sizeof(Elem)));\
+    list->elems = IF(Allocator_alloc)(Allocator_alloc, malloc)(cap * sizeof(Elem));\
     list->cap = cap;\
     list->len = 0;\
     return list;\
@@ -181,7 +181,7 @@
   }\
 \
   void List##_reserveUnchecked(List *list, size_t cap) {\
-    list->elems = IF(Allocator_realloc)(Allocator_realloc(list->elems, cap * sizeof(Elem)), realloc(list->elems, cap * sizeof(Elem)));\
+    list->elems = IF(Allocator_realloc)(Allocator_realloc, realloc)(list->elems, cap * sizeof(Elem));\
     list->cap = cap;\
   }\
 \
@@ -274,7 +274,7 @@
     for (size_t i = 0; i < list->len; i++) {\
       IF(Elem_des)(Elem_des(list->elems[i]),);\
     }\
-    IF(Allocator_free)(Allocator_free(list->elems), free(list->elems));\
+    IF(Allocator_free)(Allocator_free, free)(list->elems);\
     return list;\
   }
 

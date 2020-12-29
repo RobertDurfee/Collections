@@ -245,7 +245,7 @@
   };\
 \
   Map *Map##_cons(Map *map, size_t cap) {\
-    map->elems = IF(Allocator_alloc)(Allocator_alloc((cap + 1) * sizeof(Map##Elem)), malloc((cap + 1) * sizeof(Map##Elem)));\
+    map->elems = IF(Allocator_alloc)(Allocator_alloc, malloc)((cap + 1) * sizeof(Map##Elem));\
     memset(map->elems, 0, cap * sizeof(Map##Elem));\
     map->elems[cap].typ = MAP_ELEM_OCCUPIED;\
     map->cap = cap;\
@@ -267,7 +267,7 @@
 \
   /* Reserve provided capacity and rehash, assuming larger capacity than current. */\
   void Map##_reserveUnchecked(Map *map, size_t cap) {\
-    Map##Elem *elems = IF(Allocator_alloc)(Allocator_alloc((cap + 1) * sizeof(Map##Elem)), malloc((cap + 1) * sizeof(Map##Elem)));\
+    Map##Elem *elems = IF(Allocator_alloc)(Allocator_alloc, malloc)((cap + 1) * sizeof(Map##Elem));\
     memset(elems, 0, cap * sizeof(Map##Elem));\
     elems[cap].typ = MAP_ELEM_OCCUPIED;\
     for (size_t i = 0; i < map->cap; i++) {\
@@ -280,7 +280,7 @@
         }\
       }\
     }\
-    IF(Allocator_free)(Allocator_free(map->elems), free(map->elems));\
+    IF(Allocator_free)(Allocator_free, free)(map->elems);\
     map->elems = elems;\
     map->cap = cap;\
   }\
@@ -416,7 +416,7 @@
     for (size_t i = 0; i < map->cap; i++) {\
       Map##Elem_des(&map->elems[i]);\
     }\
-    IF(Allocator_free)(Allocator_free(map->elems), free(map->elems));\
+    IF(Allocator_free)(Allocator_free, free)(map->elems);\
     return map;\
   }
 

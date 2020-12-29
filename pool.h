@@ -97,7 +97,7 @@
   } Pool;\
 \
   void Pool##_cons(size_t cap) {\
-    Pool.slabs = Pool##Slab_cons(IF(Allocator_alloc)(Allocator_alloc(sizeof(Pool##Slab) + cap * sizeof(Elem)), malloc(sizeof(Pool##Slab) + cap * sizeof(Elem))), NULL);\
+    Pool.slabs = Pool##Slab_cons(IF(Allocator_alloc)(Allocator_alloc, malloc)(sizeof(Pool##Slab) + cap * sizeof(Elem)), NULL);\
     Pool.cap = cap;\
     Pool.len = 0;\
     Pool.frees = NULL;\
@@ -112,7 +112,7 @@
     if (Pool.len == Pool.cap) {\
       Pool.cap *= 2;\
       Pool.len = 0;\
-      Pool.slabs = Pool##Slab_cons(IF(Allocator_alloc)(Allocator_alloc(sizeof(Pool##Slab) + Pool.cap * sizeof(Elem)), malloc(sizeof(Pool##Slab) + Pool.cap * sizeof(Elem))), Pool.slabs);\
+      Pool.slabs = Pool##Slab_cons(IF(Allocator_alloc)(Allocator_alloc, malloc)(sizeof(Pool##Slab) + Pool.cap * sizeof(Elem)), Pool.slabs);\
     }\
     return &Pool.slabs->elems[Pool.len++];\
   }\
@@ -146,7 +146,7 @@
     Pool##Slab *curr = Pool.slabs, *next;\
     while (curr) {\
       next = curr->next;\
-      IF(Allocator_free)(Allocator_free(curr), free(curr));\
+      IF(Allocator_free)(Allocator_free, free)(curr);\
       curr = next;\
     }\
   }
