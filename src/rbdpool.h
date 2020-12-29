@@ -1,5 +1,5 @@
-#ifndef RBDPOOL_H
-#define RBDPOOL_H
+#ifndef RBD_POOL_H
+#define RBD_POOL_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -8,53 +8,52 @@
 #include <stdlib.h>
 
 #include "rbddef.h"
-#include "rbdio.h"
 
 /* Generate the declarations for the object pool. */
-#define POOL_GEN_DECL(Pool, Elem)\
+#define RBD_POOL_GEN_DECL(Pool, Elem)\
 \
   /*=================================================================================================================*/\
   /* Pool                                                                                                            */\
   /*=================================================================================================================*/\
 \
   /* Construct the object pool. */\
-  void Pool##_cons(size_t cap);\
+  void RBD(Pool, _cons)(size_t cap);\
 \
   /* Allocate an object from the pool. */\
-  Elem *Pool##_alloc();\
+  Elem *RBD(Pool, _alloc)();\
 \
   /* Free an object from the pool. */\
-  void Pool##_free(Elem *elem);\
+  void RBD(Pool, _free)(Elem *elem);\
 \
   /* Print the underlying representation of the object pool with depth indentation. */\
-  void Pool##_debug(FILE *file, uint32_t depth);\
+  void RBD(Pool, _debug)(FILE *file, uint32_t depth);\
 \
   /* Destruct the object pool. */\
-  void Pool##_des();
+  void RBD(Pool, _des)();
 
 /* Generate the definitions for the object pool. */
-#define POOL_GEN_DEF(Pool, Elem, Allocator_alloc, Allocator_free)\
+#define RBD_POOL_GEN_DEF(Pool, Elem, Allocator_alloc, Allocator_free)\
 \
   /*=================================================================================================================*/\
   /* Pool Free Node                                                                                                  */\
   /*=================================================================================================================*/\
 \
   /* Pool free node. */\
-  typedef struct Pool##Free Pool##Free;\
+  typedef struct RBD(Pool, Free) RBD(Pool, Free);\
 \
   /* Pool free node. */\
-  struct Pool##Free {\
-    Pool##Free *next;\
+  struct RBD(Pool, Free) {\
+    RBD(Pool, Free) *next;\
   };\
 \
   /* Construct a pool free node. */\
-  Pool##Free *Pool##Free_cons(Pool##Free *free, Pool##Free *next) {\
+  RBD(Pool, Free) *RBD(Pool, Free_cons)(RBD(Pool, Free) *free, RBD(Pool, Free) *next) {\
     free->next = next;\
     return free;\
   }\
 \
   /* Print the underlying representation of the pool free node with depth indentation. */\
-  void Pool##Free_debug(Pool##Free *free, FILE *file, uint32_t depth) {\
+  void RBD(Pool, Free_debug)(RBD(Pool, Free) *free, FILE *file, RBD_UNUSED uint32_t depth) {\
     fprintf(file, #Pool "Free (%p) { next: %p }", free, free->next);\
   }\
 \
@@ -63,26 +62,26 @@
   /*=================================================================================================================*/\
 \
   /* Pool slab node. */\
-  typedef struct Pool##Slab Pool##Slab;\
+  typedef struct RBD(Pool, Slab) RBD(Pool, Slab);\
 \
   /* Pool slab node. */\
-  struct Pool##Slab {\
-    Pool##Slab *next;\
+  struct RBD(Pool, Slab) {\
+    RBD(Pool, Slab) *next;\
     Elem elems[];\
   };\
 \
   /* Construct a pool slab node. */\
-  Pool##Slab *Pool##Slab_cons(Pool##Slab *slab, Pool##Slab *next) {\
+  RBD(Pool, Slab) *RBD(Pool, Slab_cons)(RBD(Pool, Slab) *slab, RBD(Pool, Slab) *next) {\
     slab->next = next;\
     return slab;\
   }\
 \
   /* Print the underlying representation of the pool slab node with depth indentation. */\
-  void Pool##Slab_debug(Pool##Slab *slab, FILE *file, uint32_t depth) {\
+  void RBD(Pool, Slab_debug)(RBD(Pool, Slab) *slab, FILE *file, uint32_t depth) {\
     fprintf(file, #Pool "Slab (%p) {\n", slab);\
-    findent(file, depth + 1); fprintf(file, "next: %p,\n", slab->next);\
-    findent(file, depth + 1); fprintf(file, "elems: %p,\n", slab->elems);\
-    findent(file, depth); fprintf(file, "}");\
+    RBD_INDENT(file, depth + 1); fprintf(file, "next: %p,\n", slab->next);\
+    RBD_INDENT(file, depth + 1); fprintf(file, "elems: %p,\n", slab->elems);\
+    RBD_INDENT(file, depth); fprintf(file, "}");\
   }\
 \
   /*=================================================================================================================*/\
@@ -90,20 +89,20 @@
   /*=================================================================================================================*/\
 \
   struct {\
-    Pool##Slab *slabs;\
+    RBD(Pool, Slab) *slabs;\
     size_t cap;\
     size_t len;\
-    Pool##Free *frees;\
+    RBD(Pool, Free) *frees;\
   } Pool;\
 \
-  void Pool##_cons(size_t cap) {\
-    Pool.slabs = Pool##Slab_cons(IF(Allocator_alloc)(Allocator_alloc, malloc)(sizeof(Pool##Slab) + cap * sizeof(Elem)), NULL);\
+  void RBD(Pool, _cons)(size_t cap) {\
+    Pool.slabs = RBD(Pool, Slab_cons)(RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)(sizeof(RBD(Pool, Slab)) + cap * sizeof(Elem)), NULL);\
     Pool.cap = cap;\
     Pool.len = 0;\
     Pool.frees = NULL;\
   }\
 \
-  Elem *Pool##_alloc() {\
+  Elem *RBD(Pool, _alloc)() {\
     if (Pool.frees != NULL) {\
       Elem *elem = (Elem *)Pool.frees;\
       Pool.frees = Pool.frees->next;\
@@ -112,43 +111,43 @@
     if (Pool.len == Pool.cap) {\
       Pool.cap *= 2;\
       Pool.len = 0;\
-      Pool.slabs = Pool##Slab_cons(IF(Allocator_alloc)(Allocator_alloc, malloc)(sizeof(Pool##Slab) + Pool.cap * sizeof(Elem)), Pool.slabs);\
+      Pool.slabs = RBD(Pool, Slab_cons)(RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)(sizeof(RBD(Pool, Slab)) + Pool.cap * sizeof(Elem)), Pool.slabs);\
     }\
     return &Pool.slabs->elems[Pool.len++];\
   }\
 \
-  void Pool##_free(Elem *elem) {\
-    Pool.frees = Pool##Free_cons((Pool##Free *)elem, Pool.frees);\
+  void RBD(Pool, _free)(Elem *elem) {\
+    Pool.frees = RBD(Pool, Free_cons)((RBD(Pool, Free) *)elem, Pool.frees);\
   }\
 \
-  void Pool##_debug(FILE *file, uint32_t depth) {\
+  void RBD(Pool, _debug)(FILE *file, uint32_t depth) {\
     fprintf(file, #Pool " (%p) {\n", Pool);\
-    findent(file, depth + 1); fprintf(file, "slabs: [\n");\
-    Pool##Slab *slab = Pool.slabs;\
+    RBD_INDENT(file, depth + 1); fprintf(file, "slabs: [\n");\
+    RBD(Pool, Slab) *slab = Pool.slabs;\
     while (slab) {\
-      findent(file, depth + 2); Pool##Slab_debug(slab, file, depth + 2); fprintf(file, ",\n");\
+      RBD_INDENT(file, depth + 2); RBD(Pool, Slab_debug)(slab, file, depth + 2); fprintf(file, ",\n");\
       slab = slab->next;\
     }\
-    findent(file, depth + 1); fprintf(file, "],\n");\
-    findent(file, depth + 1); fprintf(file, "cap: %lu,\n", Pool.cap);\
-    findent(file, depth + 1); fprintf(file, "len: %lu,\n", Pool.len);\
-    findent(file, depth + 1); fprintf(file, "frees: [\n");\
-    Pool##Free *free = Pool.frees;\
+    RBD_INDENT(file, depth + 1); fprintf(file, "],\n");\
+    RBD_INDENT(file, depth + 1); fprintf(file, "cap: %lu,\n", Pool.cap);\
+    RBD_INDENT(file, depth + 1); fprintf(file, "len: %lu,\n", Pool.len);\
+    RBD_INDENT(file, depth + 1); fprintf(file, "frees: [\n");\
+    RBD(Pool, Free) *free = Pool.frees;\
     while (free) {\
-      findent(file, depth + 2); Pool##Free_debug(free, file, depth + 2); fprintf(file, ",\n");\
+      RBD_INDENT(file, depth + 2); RBD(Pool, Free_debug)(free, file, depth + 2); fprintf(file, ",\n");\
       free = free->next;\
     }\
-    findent(file, depth + 1); fprintf(file, "],\n");\
-    findent(file, depth); fprintf(file, "}");\
+    RBD_INDENT(file, depth + 1); fprintf(file, "],\n");\
+    RBD_INDENT(file, depth); fprintf(file, "}");\
   }\
 \
-  void Pool##_des() {\
-    Pool##Slab *curr = Pool.slabs, *next;\
+  void RBD(Pool, _des)() {\
+    RBD(Pool, Slab) *curr = Pool.slabs, *next;\
     while (curr) {\
       next = curr->next;\
-      IF(Allocator_free)(Allocator_free, free)(curr);\
+      RBD_IF(Allocator_free)(Allocator_free, free)(curr);\
       curr = next;\
     }\
   }
 
-#endif // RBDPOOL_H
+#endif // RBD_POOL_H

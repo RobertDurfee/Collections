@@ -1,27 +1,34 @@
-#ifndef RBDDEF_H
-#define RBDDEF_H
+#ifndef RBD_DEF_H
+#define RBD_DEF_H
 
-#define UNUSED __attribute__((unused))
+#include <stdio.h>
 
-#define CAT(a, b) a ## b
+#define RBD(a, b) a ## b
 
-#define IIF(c) CAT(IIF_, c)
-#define IIF_0(t, f) f
-#define IIF_1(t, f) t
+#define RBD_IIF(c) RBD(RBD_IIF_, c)
+#define RBD_IIF_0(t, f) f
+#define RBD_IIF_1(t, f) t
 
-#define COMPL(b) CAT(COMPL_, b)
-#define COMPL_0 1
-#define COMPL_1 0
+#define RBD_COMPL(b) RBD(RBD_COMPL_, b)
+#define RBD_COMPL_0 1
+#define RBD_COMPL_1 0
 
-#define CHECK_N(x, n, ...) n
-#define CHECK(...) CHECK_N(__VA_ARGS__, 0,)
-#define PROBE(x) x, 1,
+#define RBD_CHECK_N(x, n, ...) n
+#define RBD_CHECK(...) RBD_CHECK_N(__VA_ARGS__, 0,)
+#define RBD_PROBE(x) x, 1,
 
-#define NOT(x) CHECK(CAT(NOT_, x))
-#define NOT_ PROBE(~)
+#define RBD_NOT(x) RBD_CHECK(RBD(RBD_NOT_, x))
+#define RBD_NOT_ RBD_PROBE(~)
 
-#define BOOL(x) COMPL(NOT(x))
+#define RBD_BOOL(x) RBD_COMPL(RBD_NOT(x))
 
-#define IF(c) IIF(BOOL(c))
+#define RBD_IF(c) RBD_IIF(RBD_BOOL(c))
 
-#endif // RBDDEF_H
+#define RBD_UNUSED __attribute__((unused))
+
+#define RBD_INDENT(file, depth)\
+  if (depth) {\
+    fprintf(file, "%*c", (depth) * 2, ' ');\
+  }
+
+#endif // RBD_DEF_H
