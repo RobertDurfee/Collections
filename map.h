@@ -173,8 +173,8 @@
         fprintf(file, #Map "Elem (%p) {\n", elem);                                                                     \
         findent(file, depth + 1); fprintf(file, "typ: MAP_ELEM_OCCUPIED,\n");                                          \
         findent(file, depth + 1); fprintf(file, "hash: %lu,\n", elem->hash);                                           \
-        findent(file, depth + 1); fprintf(file, "key: "); IF(Key_debug)(Key_debug(elem->key, file, depth + 1), fprintf(file, #Map "Key (?) { ? }")); fprintf(file, ",\n"); \
-        findent(file, depth + 1); fprintf(file, "val: "); IF(Val_debug)(Val_debug(elem->val, file, depth + 1), fprintf(file, #Map "Val (?) { ? }")); fprintf(file, ",\n"); \
+        findent(file, depth + 1); fprintf(file, "key: "); IF(Key_debug)(Key_debug(elem->key, file, depth + 1), fprintf(file, #Map "Key { ? }")); fprintf(file, ",\n"); \
+        findent(file, depth + 1); fprintf(file, "val: "); IF(Val_debug)(Val_debug(elem->val, file, depth + 1), fprintf(file, #Map "Val { ? }")); fprintf(file, ",\n"); \
         findent(file, depth); fprintf(file, "}");                                                                      \
         break;                                                                                                         \
       case MAP_ELEM_ERASED:                                                                                            \
