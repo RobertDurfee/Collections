@@ -239,11 +239,11 @@
   }\
 \
   List##Iter List##_begin(List *list) {\
-    return List##Iter_cons((List##Iter) { }, &list->elems[0]);\
+    return List##Iter_cons((List##Iter) {0}, &list->elems[0]);\
   }\
 \
   List##Iter List##_end(List *list) {\
-    return List##Iter_cons((List##Iter) { }, &list->elems[list->len]);\
+    return List##Iter_cons((List##Iter) {0}, &list->elems[list->len]);\
   }\
 \
   bool List##_equals(List *a, List *b) {\
