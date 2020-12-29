@@ -1,3 +1,5 @@
+// vim: ft=c
+
 #ifndef RBD_DEF_H
 #define RBD_DEF_H
 

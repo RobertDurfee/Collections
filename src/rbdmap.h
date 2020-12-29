@@ -1,3 +1,5 @@
+// vim: ft=c
+
 #ifndef RBD_MAP_H
 #define RBD_MAP_H
 

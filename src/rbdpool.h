@@ -1,3 +1,5 @@
+// vim: ft=c
+
 #ifndef RBD_POOL_H
 #define RBD_POOL_H
 
