@@ -262,7 +262,7 @@
     fprintf(file, #List " (%p) {\n", list);                                                                            \
     findent(file, depth + 1); fprintf(file, "elems: (%p) [\n", list->elems);                                           \
     for (size_t i = 0; i < list->len; i++) {                                                                           \
-      findent(file, depth + 2); IF(Elem_debug)(Elem_debug(list->elems[i], file, depth + 2), fprintf(file, #List "Elem { ? }")); fprintf(file, ",\n"); \
+      findent(file, depth + 2); IF(Elem_debug)(Elem_debug(list->elems[i], file, depth + 2), fprintf(file, #List "Elem (?) { ? }")); fprintf(file, ",\n"); \
     }                                                                                                                  \
     findent(file, depth + 1); fprintf(file, "],\n");                                                                   \
     findent(file, depth + 1); fprintf(file, "cap: %lu,\n", list->cap);                                                 \
