@@ -1,5 +1,5 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef RBDLIST_H
+#define RBDLIST_H
 
 #include <stddef.h>
 #include <stdio.h>
@@ -278,4 +278,4 @@
     return list;\
   }
 
-#endif // LIST_H
+#endif // RBDLIST_H

@@ -1,5 +1,5 @@
-#ifndef POOL_H
-#define POOL_H
+#ifndef RBDPOOL_H
+#define RBDPOOL_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -151,4 +151,4 @@
     }\
   }
 
-#endif // POOL_H
+#endif // RBDPOOL_H

@@ -1,5 +1,5 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef RBDMAP_H
+#define RBDMAP_H
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -420,4 +420,4 @@
     return map;\
   }
 
-#endif // MAP_H
+#endif // RBDMAP_H
