@@ -189,7 +189,6 @@
     if (len > list->cap) {                                                                                             \
       List##_reserveUnchecked(list, len);                                                                              \
     }                                                                                                                  \
-                                                                                                                       \
     for (size_t i = list->len; i < len; i++) {                                                                         \
       list->elems[i] = IF(Elem_default)(Elem_default(list->elems[i]), list->elems[i]);                                 \
     }                                                                                                                  \
