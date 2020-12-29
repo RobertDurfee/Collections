@@ -28,7 +28,7 @@
   RBD(List, Iter) RBD(List, Iter_next)(RBD(List, Iter) iter);\
 \
   /* Get the element at the current position. */\
-  Elem *RBD(List, Iter_at)(RBD(List, Iter) iter);\
+  Elem *RBD(List, Iter_elem)(RBD(List, Iter) iter);\
 \
   /* Check if two iterators point to the same element. */\
   bool RBD(List, Iter_equals)(RBD(List, Iter) a, RBD(List, Iter) b);\
@@ -124,7 +124,7 @@
     return iter;\
   }\
 \
-  Elem *RBD(List, Iter_at)(RBD(List, Iter) iter) {\
+  Elem *RBD(List, Iter_elem)(RBD(List, Iter) iter) {\
     return iter.elem;\
   }\
 \
