@@ -72,6 +72,9 @@
   /* Resize the list to the provided length, appending default-constructed elements as needed. */                      \
   void List##_resize(List *list, size_t len);                                                                          \
                                                                                                                        \
+  /* Insert element at the provided position. */                                                                       \
+  void List##_insert(List *list, size_t i, Elem elem);                                                                 \
+                                                                                                                       \
   /* Push the provided element to the back of the list, resizing as needed. */                                         \
   void List##_pushBack(List *list, Elem elem);                                                                         \
                                                                                                                        \
@@ -80,6 +83,9 @@
                                                                                                                        \
   /* Clear all elements and set length to zero, calling element destructor for each element. */                        \
   void List##_clear(List *list);                                                                                       \
+                                                                                                                       \
+  /* Erase the provided element, calling element destructor. */                                                        \
+  void List##_erase(List *list, size_t i);                                                                             \
                                                                                                                        \
   /* Return iterator starting at first element. */                                                                     \
   List##Iter List##_begin(List *list);                                                                                 \
@@ -190,9 +196,20 @@
       List##_reserveUnchecked(list, len);                                                                              \
     }                                                                                                                  \
     for (size_t i = list->len; i < len; i++) {                                                                         \
-      list->elems[i] = IF(Elem_default)(Elem_default(list->elems[i]), list->elems[i]);                                 \
+      IF(Elem_default)(list->elems[i] = Elem_default(list->elems[i]),);                                                \
     }                                                                                                                  \
     list->len = len;                                                                                                   \
+  }                                                                                                                    \
+                                                                                                                       \
+  void List##_insert(List *list, size_t i, Elem elem) {                                                                \
+    if (list->len == list->cap) {                                                                                      \
+      List##_reserveUnchecked(list, list->cap * 2);                                                                    \
+    }                                                                                                                  \
+    for (size_t j = i; j < list->len; j++) {                                                                           \
+      list->elems[j + 1] = list->elems[j];                                                                             \
+    }                                                                                                                  \
+    list->elems[i] = elem;                                                                                             \
+    list->len++;                                                                                                       \
   }                                                                                                                    \
                                                                                                                        \
   void List##_pushBack(List *list, Elem elem) {                                                                        \
@@ -203,7 +220,7 @@
   }                                                                                                                    \
                                                                                                                        \
   void List##_popBack(List *list) {                                                                                    \
-    IF(Elem_des)(Elem_des(list->elems[--list->len]), list->elems[--list->len]);                                        \
+    IF(Elem_des)(Elem_des(list->elems[--list->len]), --list->len);                                                     \
   }                                                                                                                    \
                                                                                                                        \
   void List##_clear(List *list) {                                                                                      \
@@ -211,6 +228,14 @@
       IF(Elem_des)(Elem_des(list->elems[i]),);                                                                         \
     }                                                                                                                  \
     list->len = 0;                                                                                                     \
+  }                                                                                                                    \
+                                                                                                                       \
+  void List##_erase(List *list, size_t i) {                                                                            \
+    IF(Elem_des)(Elem_des(list->elems[i]),);                                                                           \
+    for (size_t j = i; j < list->len - 1; j++) {                                                                       \
+      list->elems[j] = list->elems[j + 1];                                                                             \
+    }                                                                                                                  \
+    --list->len;                                                                                                       \
   }                                                                                                                    \
                                                                                                                        \
   List##Iter List##_begin(List *list) {                                                                                \
