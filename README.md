@@ -1,2 +1,2 @@
-# Library
-Library of generic C data structures and algorithms.
+# Collections
+Lightweight, header-only, macro-generated, generic, and type-safe C data structures.
