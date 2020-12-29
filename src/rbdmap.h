@@ -301,7 +301,7 @@
   }\
 \
   void RBD(Map, _insert)(Map *map, Key key, Val val) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(key), 0);\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ != RBD_MAP_ELEM_OCCUPIED) {\
         RBD(Map, Elem_consOccupied)(&map->elems[j], hash, key, val);\
@@ -315,7 +315,7 @@
   }\
 \
   void RBD(Map, _replace)(Map *map, Key key, Val val) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(key), 0);\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         RBD_IF(Val_des)(Val_des(map->elems[j].val),);\
@@ -327,7 +327,7 @@
   }\
 \
   Val *RBD(Map, _at)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(key), 0);\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         return &map->elems[j].val;\
@@ -337,7 +337,7 @@
   }\
 \
   RBD(Map, Iter) RBD(Map, _find)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(key), 0);\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         return RBD(Map, Iter_cons)((RBD(Map, Iter)) {0}, &map->elems[j]);\
@@ -349,7 +349,7 @@
   }\
 \
   bool RBD(Map, _contains)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(key), 0);\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         return true;\
@@ -361,7 +361,7 @@
   }\
 \
   void RBD(Map, _erase)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(key), 0);\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         RBD(Map, Elem_des)(&map->elems[j]);\
