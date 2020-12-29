@@ -32,7 +32,7 @@
   typedef struct RBD(Map, Iter) RBD(Map, Iter);\
 \
   /* Construct a new map iterator. */\
-  RBD(Map, Iter) RBD(Map, Iter_cons)(RBD(Map, Iter) iter, RBD(Map, Elem) *elem);\
+  RBD(Map, Iter) RBD(Map, Iter_cons)(RBD(Map, Elem) *elem);\
 \
   /* Advance the map iterator to the next element. */\
   RBD(Map, Iter) RBD(Map, Iter_next)(RBD(Map, Iter) iter);\
@@ -203,9 +203,10 @@
     RBD(Map, Elem) *elem;\
   };\
 \
-  RBD(Map, Iter) RBD(Map, Iter_cons)(RBD(Map, Iter) iter, RBD(Map, Elem) *elem) {\
-    iter.elem = elem;\
-    return iter;\
+  RBD(Map, Iter) RBD(Map, Iter_cons)(RBD(Map, Elem) *elem) {\
+    return (RBD(Map, Iter)) {\
+      .elem = elem,\
+    };\
   }\
 \
   RBD(Map, Iter) RBD(Map, Iter_next)(RBD(Map, Iter) iter) {\
@@ -340,12 +341,12 @@
     size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
       if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
-        return RBD(Map, Iter_cons)((RBD(Map, Iter)) {0}, &map->elems[j]);\
+        return RBD(Map, Iter_cons)(&map->elems[j]);\
       } else if (map->elems[j].typ == RBD_MAP_ELEM_UNUSED) {\
-        return RBD(Map, Iter_cons)((RBD(Map, Iter)) {0}, &map->elems[map->cap]);\
+        return RBD(Map, Iter_cons)(&map->elems[map->cap]);\
       }\
     }\
-    return RBD(Map, Iter_cons)((RBD(Map, Iter)) {0}, &map->elems[map->cap]);\
+    return RBD(Map, Iter_cons)(&map->elems[map->cap]);\
   }\
 \
   bool RBD(Map, _contains)(Map *map, Key key) {\
@@ -377,11 +378,11 @@
     while (elem->typ != RBD_MAP_ELEM_OCCUPIED) {\
       elem++;\
     }\
-    return RBD(Map, Iter_cons)((RBD(Map, Iter)) {0}, elem);\
+    return RBD(Map, Iter_cons)(elem);\
   }\
 \
   RBD(Map, Iter) RBD(Map, _end)(Map *map) {\
-    return RBD(Map, Iter_cons)((RBD(Map, Iter)) {0}, &map->elems[map->cap]);\
+    return RBD(Map, Iter_cons)(&map->elems[map->cap]);\
   }\
 \
   bool RBD(Map, _equals)(Map *a, Map *b) {\

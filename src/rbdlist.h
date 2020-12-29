@@ -22,7 +22,7 @@
   typedef struct RBD(List, Iter) RBD(List, Iter);\
 \
   /* Construct a new list iterator. */\
-  RBD(List, Iter) RBD(List, Iter_cons)(RBD(List, Iter) iter, Elem *elem);\
+  RBD(List, Iter) RBD(List, Iter_cons)(Elem *elem);\
 \
   /* Advance the list iterator to the next element. */\
   RBD(List, Iter) RBD(List, Iter_next)(RBD(List, Iter) iter);\
@@ -114,9 +114,10 @@
     Elem *elem;\
   };\
 \
-  RBD(List, Iter) RBD(List, Iter_cons)(RBD(List, Iter) iter, Elem *elem) {\
-    iter.elem = elem;\
-    return iter;\
+  RBD(List, Iter) RBD(List, Iter_cons)(Elem *elem) {\
+    return (RBD(List, Iter)) {\
+      .elem = elem,\
+    };\
   }\
 \
   RBD(List, Iter) RBD(List, Iter_next)(RBD(List, Iter) iter) {\
@@ -198,7 +199,7 @@
       RBD(List, _reserveUnchecked)(list, len);\
     }\
     for (size_t i = list->len; i < len; i++) {\
-      RBD_IF(Elem_default)(list->elems[i] = Elem_default(list->elems[i]),);\
+      RBD_IF(Elem_default)(list->elems[i] = Elem_default(),);\
     }\
     list->len = len;\
   }\
@@ -241,11 +242,11 @@
   }\
 \
   RBD(List, Iter) RBD(List, _begin)(List *list) {\
-    return RBD(List, Iter_cons)((RBD(List, Iter)) {0}, &list->elems[0]);\
+    return RBD(List, Iter_cons)(&list->elems[0]);\
   }\
 \
   RBD(List, Iter) RBD(List, _end)(List *list) {\
-    return RBD(List, Iter_cons)((RBD(List, Iter)) {0}, &list->elems[list->len]);\
+    return RBD(List, Iter_cons)(&list->elems[list->len]);\
   }\
 \
   bool RBD(List, _equals)(List *a, List *b) {\
