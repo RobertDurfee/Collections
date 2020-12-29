@@ -151,7 +151,7 @@
   };\
 \
   List *RBD(List, _cons)(List *list, size_t cap) {\
-    list->elems = IF(Allocator_alloc)(Allocator_alloc, malloc)(cap * sizeof(Elem));\
+    list->elems = RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)(cap * sizeof(Elem));\
     list->cap = cap;\
     list->len = 0;\
     return list;\
@@ -183,7 +183,7 @@
 \
   /* Reserve at least the provided capacity, assuming capacity is larger than current. */\
   void RBD(List, _reserveUnchecked)(List *list, size_t cap) {\
-    list->elems = IF(Allocator_realloc)(Allocator_realloc, realloc)(list->elems, cap * sizeof(Elem));\
+    list->elems = RBD_IF(Allocator_realloc)(Allocator_realloc, realloc)(list->elems, cap * sizeof(Elem));\
     list->cap = cap;\
   }\
 \
@@ -198,7 +198,7 @@
       RBD(List, _reserveUnchecked)(list, len);\
     }\
     for (size_t i = list->len; i < len; i++) {\
-      IF(Elem_default)(list->elems[i] = Elem_default(list->elems[i]),);\
+      RBD_IF(Elem_default)(list->elems[i] = Elem_default(list->elems[i]),);\
     }\
     list->len = len;\
   }\
@@ -222,18 +222,18 @@
   }\
 \
   void RBD(List, _popBack)(List *list) {\
-    IF(Elem_des)(Elem_des(list->elems[--list->len]), --list->len);\
+    RBD_IF(Elem_des)(Elem_des(list->elems[--list->len]), --list->len);\
   }\
 \
   void RBD(List, _clear)(List *list) {\
     for (size_t i = 0; i < list->len; i++) {\
-      IF(Elem_des)(Elem_des(list->elems[i]),);\
+      RBD_IF(Elem_des)(Elem_des(list->elems[i]),);\
     }\
     list->len = 0;\
   }\
 \
   void RBD(List, _erase)(List *list, size_t i) {\
-    IF(Elem_des)(Elem_des(list->elems[i]),);\
+    RBD_IF(Elem_des)(Elem_des(list->elems[i]),);\
     for (size_t j = i; j < list->len - 1; j++) {\
       list->elems[j] = list->elems[j + 1];\
     }\
@@ -253,7 +253,7 @@
       return false;\
     }\
     for (size_t i = 0; i < a->len; i++) {\
-      if (!IF(Elem_equals)(Elem_equals(a->elems[i], b->elems[i]), (a->elems[i] == b->elems[i]))) {\
+      if (!RBD_IF(Elem_equals)(Elem_equals(a->elems[i], b->elems[i]), (a->elems[i] == b->elems[i]))) {\
         return false;\
       }\
     }\
@@ -264,7 +264,7 @@
     fprintf(file, #List " (%p) {\n", list);\
     RBD_INDENT(file, depth + 1); fprintf(file, "elems: (%p) [\n", list->elems);\
     for (size_t i = 0; i < list->len; i++) {\
-      RBD_INDENT(file, depth + 2); IF(Elem_debug)(Elem_debug(list->elems[i], file, depth + 2), fprintf(file, #List "Elem { ? }")); fprintf(file, ",\n");\
+      RBD_INDENT(file, depth + 2); RBD_IF(Elem_debug)(Elem_debug(list->elems[i], file, depth + 2), fprintf(file, #List "Elem { ? }")); fprintf(file, ",\n");\
     }\
     RBD_INDENT(file, depth + 1); fprintf(file, "],\n");\
     RBD_INDENT(file, depth + 1); fprintf(file, "cap: %lu,\n", list->cap);\
@@ -274,9 +274,9 @@
 \
   List *RBD(List, _des)(List *list) {\
     for (size_t i = 0; i < list->len; i++) {\
-      IF(Elem_des)(Elem_des(list->elems[i]),);\
+      RBD_IF(Elem_des)(Elem_des(list->elems[i]),);\
     }\
-    IF(Allocator_free)(Allocator_free, free)(list->elems);\
+    RBD_IF(Allocator_free)(Allocator_free, free)(list->elems);\
     return list;\
   }
 
