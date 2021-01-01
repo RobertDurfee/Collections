@@ -33,4 +33,16 @@
     fprintf(file, "%*c", (depth) * 2, ' ');\
   }
 
+#define RBD_MAX(a, b) ((a) > (b)) ? (a) : (b)
+#define RBD_MIN(a, b) ((a) < (b)) ? (a) : (b)
+
+#define RBD_SWAP(Elem, a, b)\
+  do {\
+    Elem tmp = a;\
+    a = b;\
+    b = tmp;\
+  } while (0)
+
+#define RBD_CEIL_DIV(n, d) (((n) / (d)) + (((n) % (d)) != 0))
+
 #endif // RBD_DEF_H
