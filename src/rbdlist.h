@@ -152,9 +152,11 @@
   };\
 \
   List *RBD(List, _cons)(List *list, size_t cap) {\
-    list->elems = RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)(cap * sizeof(Elem));\
-    list->cap = cap;\
-    list->len = 0;\
+    *list = (List) {\
+      .elems = RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)(cap * sizeof(Elem)),\
+      .cap = cap,\
+      .len = 0,\
+    };\
     return list;\
   }\
 \

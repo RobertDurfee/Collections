@@ -126,22 +126,28 @@
 \
   /* Construct a new unused map element. */\
   RBD(Map, Elem) *RBD(Map, Elem_consUnused)(RBD(Map, Elem) *elem) {\
-    elem->typ = RBD_MAP_ELEM_UNUSED;\
+    *elem = (RBD(Map, Elem)) {\
+      .typ = RBD_MAP_ELEM_UNUSED,\
+    };\
     return elem;\
   }\
 \
   /* Construct a new occupied map element. */\
   RBD(Map, Elem) *RBD(Map, Elem_consOccupied)(RBD(Map, Elem) *elem, size_t hash, Key key, Val val) {\
-    elem->typ = RBD_MAP_ELEM_OCCUPIED;\
-    elem->hash = hash;\
-    elem->key = key;\
-    elem->val = val;\
+    *elem = (RBD(Map, Elem)) {\
+      .typ = RBD_MAP_ELEM_OCCUPIED,\
+      .hash = hash,\
+      .key = key,\
+      .val = val,\
+    };\
     return elem;\
   }\
 \
   /* Construct a new erased map element. */\
   RBD(Map, Elem) *RBD(Map, Elem_consErased)(RBD(Map, Elem) *elem) {\
-    elem->typ = RBD_MAP_ELEM_ERASED;\
+    *elem = (RBD(Map, Elem)) {\
+      .typ = RBD_MAP_ELEM_ERASED,\
+    };\
     return elem;\
   }\
 \
@@ -247,11 +253,13 @@
   };\
 \
   Map *RBD(Map, _cons)(Map *map, size_t cap) {\
-    map->elems = RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)((cap + 1) * sizeof(RBD(Map, Elem)));\
+    *map = (Map) {\
+      .elems = RBD_IF(Allocator_alloc)(Allocator_alloc, malloc)((cap + 1) * sizeof(RBD(Map, Elem))),\
+      .cap = cap,\
+      .len = 0,\
+    };\
     memset(map->elems, 0, cap * sizeof(RBD(Map, Elem)));\
     map->elems[cap].typ = RBD_MAP_ELEM_OCCUPIED;\
-    map->cap = cap;\
-    map->len = 0;\
     return map;\
   }\
 \
@@ -274,9 +282,9 @@
     elems[cap].typ = RBD_MAP_ELEM_OCCUPIED;\
     for (size_t i = 0; i < map->cap; i++) {\
       if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED) {\
-        for (size_t j = 0, k = map->elems[i].hash % cap; j < cap; j++, k = (k + 1) % cap) {\
-          if (elems[k].typ != RBD_MAP_ELEM_OCCUPIED) {\
-            elems[k] = map->elems[i];\
+        for (size_t j = map->elems[i].hash % cap; ; j = (j + 1) % cap) {\
+          if (elems[j].typ != RBD_MAP_ELEM_OCCUPIED) {\
+            elems[j] = map->elems[i];\
             break;\
           }\
         }\
@@ -288,7 +296,7 @@
   }\
 \
   void RBD(Map, _reserve)(Map *map, size_t cap) {\
-    if (3 * cap > 2 * map->cap) {\
+    if (cap > map->cap) {\
       RBD(Map, _reserveUnchecked)(map, cap);\
     }\
   }\
@@ -303,9 +311,9 @@
 \
   void RBD(Map, _insert)(Map *map, Key key, Val val) {\
     size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
-    for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
-      if (map->elems[j].typ != RBD_MAP_ELEM_OCCUPIED) {\
-        RBD(Map, Elem_consOccupied)(&map->elems[j], hash, key, val);\
+    for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
+      if (map->elems[i].typ != RBD_MAP_ELEM_OCCUPIED) {\
+        RBD(Map, Elem_consOccupied)(&map->elems[i], hash, key, val);\
         map->len++;\
         break;\
       }\
@@ -317,10 +325,10 @@
 \
   void RBD(Map, _replace)(Map *map, Key key, Val val) {\
     size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
-    for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
-      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
-        RBD_IF(Val_des)(Val_des(map->elems[j].val),);\
-        map->elems[j].val = val;\
+    for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
+        RBD_IF(Val_des)(Val_des(map->elems[i].val),);\
+        map->elems[i].val = val;\
         return;\
       }\
     }\
@@ -329,9 +337,9 @@
 \
   Val *RBD(Map, _at)(Map *map, Key key) {\
     size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
-    for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
-      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
-        return &map->elems[j].val;\
+    for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
+        return &map->elems[i].val;\
       }\
     }\
     __builtin_unreachable();\
@@ -363,10 +371,10 @@
 \
   void RBD(Map, _erase)(Map *map, Key key) {\
     size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
-    for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
-      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
-        RBD(Map, Elem_des)(&map->elems[j]);\
-        RBD(Map, Elem_consErased)(&map->elems[j]);\
+    for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
+        RBD(Map, Elem_des)(&map->elems[i]);\
+        RBD(Map, Elem_consErased)(&map->elems[i]);\
         return;\
       }\
     }\
