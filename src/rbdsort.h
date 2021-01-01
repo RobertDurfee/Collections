@@ -25,10 +25,12 @@
     size_t offsets[RBD_IF(Elem_digitMax)(Elem_digitMax, UINT8_MAX) + 1];\
 \
     /* Set counts for current digit. */\
-    for (ElemIter i_elem = in_elems_begin; !RBD_IF(ElemIter_equals)(ElemIter_equals(i_elem, in_elems_end), (i_elem == in_elems_end)); i_elem = RBD_IF(ElemIter_next)(ElemIter_next(i_elem), i_elem + 1)) {\
-      Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(i_elem), i_elem);\
+    ElemIter elem_it = in_elems_begin;\
+    while (!RBD_IF(ElemIter_equals)(ElemIter_equals(elem_it, in_elems_end), (elem_it == in_elems_end))) {\
+      Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(elem_it), elem_it);\
       size_t digit = RBD_IF(Elem_digitAt)(Elem_digitAt(elem, i_digit), ((uint64_t)elem >> (i_digit << 3)) & 0xFFlu);\
       counts[digit]++;\
+      RBD_IF(ElemIter_next)(elem_it = ElemIter_next(elem_it), elem_it++);\
     }\
 \
     /* Set bucket offsets for current digit. */\
@@ -39,10 +41,12 @@
     }\
 \
     /* Copy elems from input iterator to output array at corresponding offset. */\
-    for (ElemIter i_elem = in_elems_begin; !RBD_IF(ElemIter_equals)(ElemIter_equals(i_elem, in_elems_end), (i_elem == in_elems_end)); i_elem = RBD_IF(ElemIter_next)(ElemIter_next(i_elem), i_elem + 1)) {\
-      Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(i_elem), i_elem);\
+    elem_it = in_elems_begin;\
+    while (!RBD_IF(ElemIter_equals)(ElemIter_equals(elem_it, in_elems_end), (elem_it == in_elems_end))) {\
+      Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(elem_it), elem_it);\
       size_t digit = RBD_IF(Elem_digitAt)(Elem_digitAt(elem, i_digit), ((uint64_t)elem >> (i_digit << 3)) & 0xFFlu);\
       out_elems[offsets[digit]++] = elem;\
+      RBD_IF(ElemIter_next)(elem_it = ElemIter_next(elem_it), elem_it++);\
     }\
   }
 
@@ -65,9 +69,11 @@
     /* Determine number of rounds of radix sort (one for each digit). */\
     Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(in_elems_begin), in_elems_begin);\
     size_t n_digits = RBD_IF(Elem_digitLen)(Elem_digitLen(elem), RBD_CEIL_DIV(64 - __builtin_clzl((uint64_t)elem), 8));\
-    for (ElemIter i_elem = RBD_IF(ElemIter_next)(ElemIter_next(in_elems_begin), in_elems_begin + 1); !RBD_IF(ElemIter_equals)(ElemIter_equals(i_elem, in_elems_end), (i_elem == in_elems_end)); i_elem = RBD_IF(ElemIter_next)(ElemIter_next(i_elem), i_elem + 1)) {\
-      Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(i_elem), i_elem);\
+    ElemIter elem_it = RBD_IF(ElemIter_next)(ElemIter_next(in_elems_begin), in_elems_begin + 1);\
+    while (!RBD_IF(ElemIter_equals)(ElemIter_equals(elem_it, in_elems_end), (elem_it == in_elems_end))) {\
+      Elem elem = *RBD_IF(ElemIter_elem)(ElemIter_elem(elem_it), elem_it);\
       n_digits = RBD_MAX(n_digits, RBD_IF(Elem_digitLen)(Elem_digitLen(elem), RBD_CEIL_DIV(64 - __builtin_clzl((uint64_t)elem), 8)));\
+      RBD_IF(ElemIter_next)(elem_it = ElemIter_next(elem_it), elem_it++);\
     }\
 \
     /* Temporary element array. */\
@@ -96,6 +102,7 @@
 /* Generate the declaration for the merge sort. */
 #define RBD_MSORT_GEN_DECL(Sorter, ElemIter, Elem)\
 \
+  /* Perform merge sort on the provided iterator and return in out_elems. */\
   void RBD(Sorter, _msort)(ElemIter in_elems, size_t n_elems, Elem *out_elems);
 
 /* Generate the definition for the merge sort. */
@@ -107,6 +114,7 @@
 /* Generate the declaration for the quick sort. */
 #define RBD_QSORT_GEN_DECL(Sorter, ElemIter, Elem)\
 \
+  /* Perform quick sort on the provided iterator and return in out_elems. */\
   void RBD(Sorter, _qsort)(ElemIter in_elems, size_t n_elems, Elem *out_elems);
 
 /* Generate the definition for the quick sort. */
