@@ -205,7 +205,7 @@
   /* Destruct the map element, calling key and value destructors, if necessary. */\
   RBD(Map, Elem) *RBD(Map, Elem_des)(RBD(Map, Elem) *elem) {\
     if (elem->typ == RBD_MAP_ELEM_OCCUPIED) {\
-      RBD_IF(Key_des)(Key_des(Key_ref(elem->key)),);\
+      RBD_IF(Key_des)(Key_des(elem->key),);\
       RBD_IF(Val_des)(Val_des(Val_ref(elem->val)),);\
     }\
     return elem;\
