@@ -341,7 +341,11 @@
     size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
       if (map->elems[i].typ != RBD_MAP_ELEM_OCCUPIED) {\
-        RBD(Map, Elem_consOccupied)(&map->elems[i], hash, key, 0);\
+        map->elems[i] = (RBD(Map, Elem)) {\
+          .typ = RBD_MAP_ELEM_OCCUPIED,\
+          .hash = hash,\
+          .key = key,\
+        };\
         map->len++;\
         return &map->elems[i].val;\
       }\
