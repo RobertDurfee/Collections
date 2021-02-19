@@ -73,11 +73,17 @@
   /* Resize the list to the provided length, appending default-constructed elements as needed. */\
   void RBD(List, _resize)(List *list, size_t len);\
 \
-  /* Insert element at the provided position. */\
+  /* Insert element at the provided position, resizing as needed. */\
   void RBD(List, _insert)(List *list, size_t i, Elem elem);\
+\
+  /* Same as `insert`, but returning a pointer to the element to-be-constructed. */\
+  Elem *RBD(List, _emplace)(List *list, size_t i);\
 \
   /* Push the provided element to the back of the list, resizing as needed. */\
   void RBD(List, _pushBack)(List *list, Elem elem);\
+\
+  /* Same as `pushBack`, but returning a pointer to the element to-be-constructed. */\
+  Elem *RBD(List, _emplaceBack)(List *list);\
 \
   /* Remove the element at the end of the list. */\
   void RBD(List, _popBack)(List *list);\
@@ -213,8 +219,19 @@
     for (size_t j = i; j < list->len; j++) {\
       list->elems[j + 1] = list->elems[j];\
     }\
-    list->elems[i] = elem;\
     list->len++;\
+    list->elems[i] = elem;\
+  }\
+\
+  Elem *RBD(List, _emplace)(List *list, size_t i) {\
+    if (list->len == list->cap) {\
+      RBD(List, _reserveUnchecked)(list, list->cap * 2);\
+    }\
+    for (size_t j = i; j < list->len; j++) {\
+      list->elems[j + 1] = list->elems[j];\
+    }\
+    list->len++;\
+    return &list->elems[i];\
   }\
 \
   void RBD(List, _pushBack)(List *list, Elem elem) {\
@@ -222,6 +239,13 @@
       RBD(List, _reserveUnchecked)(list, list->cap * 2);\
     }\
     list->elems[list->len++] = elem;\
+  }\
+\
+  Elem *RBD(List, _emplaceBack)(List *list) {\
+    if (list->len == list->cap) {\
+      RBD(List, _reserveUnchecked)(list, list->cap * 2);\
+    }\
+    return &list->elems[list->len++];\
   }\
 \
   void RBD(List, _popBack)(List *list) {\
