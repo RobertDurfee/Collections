@@ -118,9 +118,9 @@
   /* Destruct the map. */\
   Map *RBD(Map, _des)(Map *map);
 
-// RBD_MAP_GEN_DEF(Map, Key, /*&*/, /*Key_hash*/, /*Key_equals*/, /*Key_debug*/, /*Key_des*/, Val, /*&*/, /*Val_equals*/, /*Val_debug*/, /*Val_des*/, /*Allocator_alloc*/, /*Allocator_free*/)
+// RBD_MAP_GEN_DEF(Map, Key, /*Key_hash*/, /*Key_equals*/, /*Key_debug*/, /*Key_des*/, Val, /*&*/, /*Val_equals*/, /*Val_debug*/, /*Val_des*/, /*Allocator_alloc*/, /*Allocator_free*/)
 
-#define RBD_MAP_GEN_DEF(Map, Key, Key_ref, Key_hash, Key_equals, Key_debug, Key_des, Val, Val_ref, Val_equals, Val_debug, Val_des, Allocator_alloc, Allocator_free)\
+#define RBD_MAP_GEN_DEF(Map, Key, Key_hash, Key_equals, Key_debug, Key_des, Val, Val_ref, Val_equals, Val_debug, Val_des, Allocator_alloc, Allocator_free)\
 \
   /*=================================================================================================================*/\
   /* Map Element                                                                                                     */\
@@ -170,7 +170,7 @@
       if (a->hash != b->hash) {\
         return false;\
       }\
-      if (!RBD_IF(Key_equals)(Key_equals(Key_ref(a->key), Key_ref(b->key)), (Key_ref(a->key) == Key_ref(b->key)))) {\
+      if (!RBD_IF(Key_equals)(Key_equals(a->key, b->key), (a->key == b->key))) {\
         return false;\
       }\
       if (!RBD_IF(Val_equals)(Val_equals(Val_ref(a->val), Val_ref(b->val)), (Val_ref(a->val) == Val_ref(b->val)))) {\
@@ -190,7 +190,7 @@
         fprintf(file, #Map "Elem (%p) {\n", elem);\
         RBD_INDENT(file, depth + 1); fprintf(file, "typ: RBD_MAP_ELEM_OCCUPIED,\n");\
         RBD_INDENT(file, depth + 1); fprintf(file, "hash: %lu,\n", elem->hash);\
-        RBD_INDENT(file, depth + 1); fprintf(file, "key: "); RBD_IF(Key_debug)(Key_debug(Key_ref(elem->key), file, depth + 1), fprintf(file, #Map "Key { ? }")); fprintf(file, ",\n");\
+        RBD_INDENT(file, depth + 1); fprintf(file, "key: "); RBD_IF(Key_debug)(Key_debug(elem->key, file, depth + 1), fprintf(file, #Map "Key { ? }")); fprintf(file, ",\n");\
         RBD_INDENT(file, depth + 1); fprintf(file, "val: "); RBD_IF(Val_debug)(Val_debug(Val_ref(elem->val), file, depth + 1), fprintf(file, #Map "Val { ? }")); fprintf(file, ",\n");\
         RBD_INDENT(file, depth); fprintf(file, "}");\
         break;\
@@ -323,7 +323,7 @@
     if (3 * map->len > 2 * map->cap) {\
       RBD(Map, _reserveUnchecked)(map, map->cap * 2);\
     }\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
       if (map->elems[i].typ != RBD_MAP_ELEM_OCCUPIED) {\
         RBD(Map, Elem_consOccupied)(&map->elems[i], hash, key, val);\
@@ -338,7 +338,7 @@
     if (3 * map->len > 2 * map->cap) {\
       RBD(Map, _reserveUnchecked)(map, map->cap * 2);\
     }\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
       if (map->elems[i].typ != RBD_MAP_ELEM_OCCUPIED) {\
         map->elems[i] = (RBD(Map, Elem)) {\
@@ -354,9 +354,9 @@
   }\
 \
   void RBD(Map, _replace)(Map *map, Key key, Val val) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
-      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(Key_ref(map->elems[i].key), Key_ref(key)), Key_ref(map->elems[i].key) == Key_ref(key))) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
         RBD_IF(Val_des)(Val_des(Val_ref(map->elems[i].val)),);\
         map->elems[i].val = val;\
         return;\
@@ -366,9 +366,9 @@
   }\
 \
   Val *RBD(Map, _remplace)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
-      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(Key_ref(map->elems[i].key), Key_ref(key)), Key_ref(map->elems[i].key) == Key_ref(key))) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
         RBD_IF(Val_des)(Val_des(Val_ref(map->elems[i].val)),);\
         return &map->elems[i].val;\
       }\
@@ -377,9 +377,9 @@
   }\
 \
   Val *RBD(Map, _at)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
-      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(Key_ref(map->elems[i].key), Key_ref(key)), Key_ref(map->elems[i].key) == Key_ref(key))) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
         return &map->elems[i].val;\
       }\
     }\
@@ -387,9 +387,9 @@
   }\
 \
   RBD(Map, Iter) RBD(Map, _find)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
-      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(Key_ref(map->elems[j].key), Key_ref(key)), Key_ref(map->elems[j].key) == Key_ref(key))) {\
+      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         return RBD(Map, Iter_cons)(&map->elems[j]);\
       } else if (map->elems[j].typ == RBD_MAP_ELEM_UNUSED) {\
         return RBD(Map, Iter_cons)(&map->elems[map->cap]);\
@@ -399,9 +399,9 @@
   }\
 \
   bool RBD(Map, _contains)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = 0, j = hash % map->cap; i < map->cap; i++, j = (j + 1) % map->cap) {\
-      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(Key_ref(map->elems[j].key), Key_ref(key)), Key_ref(map->elems[j].key) == Key_ref(key))) {\
+      if (map->elems[j].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[j].key, key), map->elems[j].key == key)) {\
         return true;\
       } else if (map->elems[j].typ == RBD_MAP_ELEM_UNUSED) {\
         return false;\
@@ -411,9 +411,9 @@
   }\
 \
   void RBD(Map, _erase)(Map *map, Key key) {\
-    size_t hash = RBD_IF(Key_hash)(Key_hash(Key_ref(key)), (size_t)Key_ref(key));\
+    size_t hash = RBD_IF(Key_hash)(Key_hash(key), (size_t)key);\
     for (size_t i = hash % map->cap; ; i = (i + 1) % map->cap) {\
-      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(Key_ref(map->elems[i].key), Key_ref(key)), Key_ref(map->elems[i].key) == Key_ref(key))) {\
+      if (map->elems[i].typ == RBD_MAP_ELEM_OCCUPIED && RBD_IF(Key_equals)(Key_equals(map->elems[i].key, key), map->elems[i].key == key)) {\
         RBD(Map, Elem_des)(&map->elems[i]);\
         RBD(Map, Elem_consErased)(&map->elems[i]);\
         return;\
