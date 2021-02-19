@@ -281,7 +281,7 @@
       return false;\
     }\
     for (size_t i = 0; i < a->len; i++) {\
-      if (!RBD_IF(Elem_equals)(Elem_equals(Elem_ref(a->elems[i]), Elem_ref(b->elems[i])), (Elem_ref(a->elems[i]) == Elem_ref(b->elems[i])))) {\
+      if (!RBD_IF(Elem_equals)(Elem_equals(Elem_ref(a->elems[i]), Elem_ref(b->elems[i])), (a->elems[i] == b->elems[i]))) {\
         return false;\
       }\
     }\
