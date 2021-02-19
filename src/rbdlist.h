@@ -111,10 +111,10 @@
   /* Destruct the list. */\
   List *RBD(List, _des)(List *list);
 
-// RBD_LIST_GEN_DEF(List, Elem, /*&*/, /*Elem_default*/, /*Elem_equals*/, /*Elem_debug*/, /*Elem_des*/, /*Allocator_alloc*/, /*Allocator_realloc*/, /*Allocator_free*/);
+// RBD_LIST_GEN_DEF(List, Elem, /*&*/, /*Elem_equals*/, /*Elem_debug*/, /*Elem_des*/, /*Allocator_alloc*/, /*Allocator_realloc*/, /*Allocator_free*/);
 
 /* Generate the definitions for the list. */
-#define RBD_LIST_GEN_DEF(List, Elem, Elem_ref, Elem_default, Elem_equals, Elem_debug, Elem_des, Allocator_alloc, Allocator_realloc, Allocator_free)\
+#define RBD_LIST_GEN_DEF(List, Elem, Elem_ref, Elem_equals, Elem_debug, Elem_des, Allocator_alloc, Allocator_realloc, Allocator_free)\
 \
   /*=================================================================================================================*/\
   /* List Iterator                                                                                                   */\
@@ -209,9 +209,6 @@
   void RBD(List, _resize)(List *list, size_t len) {\
     if (len > list->cap) {\
       RBD(List, _reserveUnchecked)(list, len);\
-    }\
-    for (size_t i = list->len; i < len; i++) {\
-      RBD_IF(Elem_default)(list->elems[i] = Elem_default(),);\
     }\
     list->len = len;\
   }\
