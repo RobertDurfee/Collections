@@ -173,7 +173,7 @@
       if (!RBD_IF(Key_equals)(Key_equals(a->key, b->key), (a->key == b->key))) {\
         return false;\
       }\
-      if (!RBD_IF(Val_equals)(Val_equals(Val_ref(a->val), Val_ref(b->val)), (Val_ref(a->val) == Val_ref(b->val)))) {\
+      if (!RBD_IF(Val_equals)(Val_equals(Val_ref(a->val), Val_ref(b->val)), (a->val == b->val))) {\
         return false;\
       }\
     }\
@@ -443,7 +443,7 @@
         if (!RBD(Map, _contains)(b, a->elems[i].key)) {\
           return false;\
         }\
-        if (!RBD_IF(Val_equals)(Val_equals(Val_ref(a->elems[i].val), Val_ref(*RBD(Map, _at)(b, a->elems[i].key))), (Val_ref(a->elems[i].val) == Val_ref(*RBD(Map, _at)(b, a->elems[i].key))))) {\
+        if (!RBD_IF(Val_equals)(Val_equals(Val_ref(a->elems[i].val), Val_ref(*RBD(Map, _at)(b, a->elems[i].key))), (a->elems[i].val == *RBD(Map, _at)(b, a->elems[i].key)))) {\
           return false;\
         }\
       }\
