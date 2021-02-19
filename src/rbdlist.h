@@ -11,6 +11,8 @@
 
 #include "rbddef.h"
 
+// RBD_LIST_GEN_DECL(List, Elem);
+
 /* Generate the declarations for the list. */
 #define RBD_LIST_GEN_DECL(List, Elem)\
 \
@@ -109,8 +111,10 @@
   /* Destruct the list. */\
   List *RBD(List, _des)(List *list);
 
+// RBD_LIST_GEN_DEF(List, Elem, /*&*/, /*Elem_default*/, /*Elem_equals*/, /*Elem_debug*/, /*Elem_des*/, /*Allocator_alloc*/, /*Allocator_realloc*/, /*Allocator_free*/);
+
 /* Generate the definitions for the list. */
-#define RBD_LIST_GEN_DEF(List, Elem, Elem_default, Elem_equals, Elem_debug, Elem_des, Allocator_alloc, Allocator_realloc, Allocator_free)\
+#define RBD_LIST_GEN_DEF(List, Elem, Elem_ref, Elem_default, Elem_equals, Elem_debug, Elem_des, Allocator_alloc, Allocator_realloc, Allocator_free)\
 \
   /*=================================================================================================================*/\
   /* List Iterator                                                                                                   */\
@@ -249,18 +253,18 @@
   }\
 \
   void RBD(List, _popBack)(List *list) {\
-    RBD_IF(Elem_des)(Elem_des(list->elems[--list->len]), --list->len);\
+    RBD_IF(Elem_des)(Elem_des(Elem_ref(list->elems[--list->len])), --list->len);\
   }\
 \
   void RBD(List, _clear)(List *list) {\
     for (size_t i = 0; i < list->len; i++) {\
-      RBD_IF(Elem_des)(Elem_des(list->elems[i]),);\
+      RBD_IF(Elem_des)(Elem_des(Elem_ref(list->elems[i])),);\
     }\
     list->len = 0;\
   }\
 \
   void RBD(List, _erase)(List *list, size_t i) {\
-    RBD_IF(Elem_des)(Elem_des(list->elems[i]),);\
+    RBD_IF(Elem_des)(Elem_des(Elem_ref(list->elems[i])),);\
     for (size_t j = i; j < list->len - 1; j++) {\
       list->elems[j] = list->elems[j + 1];\
     }\
@@ -280,7 +284,7 @@
       return false;\
     }\
     for (size_t i = 0; i < a->len; i++) {\
-      if (!RBD_IF(Elem_equals)(Elem_equals(a->elems[i], b->elems[i]), (a->elems[i] == b->elems[i]))) {\
+      if (!RBD_IF(Elem_equals)(Elem_equals(Elem_ref(a->elems[i]), Elem_ref(b->elems[i])), (Elem_ref(a->elems[i]) == Elem_ref(b->elems[i])))) {\
         return false;\
       }\
     }\
@@ -291,7 +295,7 @@
     fprintf(file, #List " (%p) {\n", list);\
     RBD_INDENT(file, depth + 1); fprintf(file, "elems: (%p) [\n", list->elems);\
     for (size_t i = 0; i < list->len; i++) {\
-      RBD_INDENT(file, depth + 2); RBD_IF(Elem_debug)(Elem_debug(list->elems[i], file, depth + 2), fprintf(file, #List "Elem { ? }")); fprintf(file, ",\n");\
+      RBD_INDENT(file, depth + 2); RBD_IF(Elem_debug)(Elem_debug(Elem_ref(list->elems[i]), file, depth + 2), fprintf(file, #List "Elem { ? }")); fprintf(file, ",\n");\
     }\
     RBD_INDENT(file, depth + 1); fprintf(file, "],\n");\
     RBD_INDENT(file, depth + 1); fprintf(file, "cap: %lu,\n", list->cap);\
@@ -301,7 +305,7 @@
 \
   List *RBD(List, _des)(List *list) {\
     for (size_t i = 0; i < list->len; i++) {\
-      RBD_IF(Elem_des)(Elem_des(list->elems[i]),);\
+      RBD_IF(Elem_des)(Elem_des(Elem_ref(list->elems[i])),);\
     }\
     RBD_IF(Allocator_free)(Allocator_free, free)(list->elems);\
     return list;\
